@@ -30,7 +30,11 @@ app.get("/", (req, res, next) => {
 
 templates.forEach((template) => {
   app.get(`${template.url}`, (req, res, next) => {
-    res.render("message", { pre: template.pre, post: template.post, message: req.params.message })
+    renderMessage(req, res, next, false, { 
+      pre: template.pre,
+      post: template.post,
+      message: req.params.message 
+    })
   })
 })
 
@@ -45,20 +49,25 @@ templates.forEach((template1) => {
         let message1 = req.params.message
         let template1Pre = template1.pre
 
+
         if(template1Pre.length > 0) {
           template1Pre = `${template1Pre[0].toUpperCase()}${template1Pre.slice(1)}`
         } else {
           message1 = `${message1[0].toUpperCase()}${message1.slice(1)}`
         }
 
-        res.render("messagelong", {
+        let totalMessage = `${template1Pre}${message1}${template1.post}${conjunction.text}${template2.pre}${req.params.message2}${template2.post}`
+
+
+        renderMessage(req, res, next, true, {
           pre: template1Pre,
           post: template1.post,
           message: message1,
           conjunction: conjunction.text,
           pre2: template2.pre,
           post2: template2.post,
-          message2: req.params.message2
+          message2: req.params.message2,
+          description: totalMessage
         })
       })
     })
@@ -66,17 +75,25 @@ templates.forEach((template1) => {
 })
 
 // deal with messaging
-function renderMessage(req, res, next, data) {
+function renderMessage(req, res, next, long, data) {
   let validEntry = false
   for(let prop in categories) {
     if(categories[prop].includes(data.message)) {
       validEntry = true
     }
   }
+
+  let messageType = long ? "messagelong" : "message"
+
   if(validEntry) {
-    res.render("message", data)
+    res.render(messageType, data)
   } else {
-    res.render("message", { pre: "Error: ", post: "!", message: "unsupported word" })
+    res.render(messageType, {
+      pre: "Error ",
+      post: " phrase!",
+      message: "with",
+      description: "Error with phrase!"
+    })
   }
 }
 
