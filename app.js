@@ -4,6 +4,7 @@ const favicon = require("serve-favicon")
 const logger = require("morgan")
 const cookieParser = require("cookie-parser")
 const bodyParser = require("body-parser")
+const colors = require('colors');
 
 const templates = require("./data/templates")
 const conjunctions = require("./data/conjunctions")
@@ -30,10 +31,15 @@ app.get("/", (req, res, next) => {
 
 templates.forEach((template) => {
   app.get(`${template.url}`, (req, res, next) => {
+    const message = formatMessage(
+          { pre: template.pre, post: template.post, message: req.params.message }
+        )
+
     renderMessage(req, res, next, false, { 
-      pre: template.pre,
-      post: template.post,
-      message: req.params.message 
+      pre: message.pre,
+      post: message.post,
+      message: message.message,
+      description: message.string
     })
   })
 })
@@ -46,28 +52,21 @@ templates.forEach((template1) => {
 
       url2 = url2.replace("message", "message2")
       app.get(`${url1}${conjunction.url}${url2}`, (req, res, next) => {
-        let message1 = req.params.message
-        let template1Pre = template1.pre
-
-
-        if(template1Pre.length > 0) {
-          template1Pre = `${template1Pre[0].toUpperCase()}${template1Pre.slice(1)}`
-        } else {
-          message1 = `${message1[0].toUpperCase()}${message1.slice(1)}`
-        }
-
-        let totalMessage = `${template1Pre}${message1}${template1.post}${conjunction.text}${template2.pre}${req.params.message2}${template2.post}`
-
+        const message = formatMessage(
+          { pre: template1.pre, post: template1.post, message: req.params.message },
+          { text: conjunction.text },
+          { pre: template2.pre, post: template2.post, message: req.params.message2 }
+        )
 
         renderMessage(req, res, next, true, {
-          pre: template1Pre,
-          post: template1.post,
-          message: message1,
-          conjunction: conjunction.text,
-          pre2: template2.pre,
-          post2: template2.post,
-          message2: req.params.message2,
-          description: totalMessage
+          pre: message.msg1.pre,
+          post: message.msg1.post,
+          message: message.msg1.message,
+          conjunction: message.conj.text,
+          pre2: message.msg2.pre,
+          post2: message.msg2.post,
+          message2: message.msg2.message,
+          description: message.string
         })
       })
     })
@@ -78,7 +77,7 @@ templates.forEach((template1) => {
 function renderMessage(req, res, next, long, data) {
   let validEntry = false
   for(let prop in categories) {
-    if(categories[prop].includes(data.message)) {
+    if(categories[prop].includes(data.message.toLowerCase())) {
       validEntry = true
     }
   }
@@ -106,6 +105,41 @@ function fourohfour(req, res, next) {
   next(err)
 }
 
+// format message with capital first letter
+function formatMessage(msg1, conj, msg2) {
+  if(msg1.pre.length > 0) {
+    msg1.pre = `${msg1.pre[0].toUpperCase()}${msg1.pre.slice(1)}`
+  } else {
+    msg1.message = `${msg1.message[0].toUpperCase()}${msg1.message.slice(1)}`
+  }
+
+  if(msg2) {
+    return {
+      msg1: {
+        pre: msg1.pre,
+        post: msg1.post,
+        message: msg1.message
+      },
+      conj: {
+        text: conj.text
+      },
+      msg2: {
+        pre: msg2.pre,
+        post: msg2.post,
+        message: msg2.message
+      },
+      string: `${msg1.pre}${msg1.message}${msg1.post}${conj.text}${msg2.pre}${msg2.message}${msg2.post}`
+    }
+  } else {
+    return {
+      pre: msg1.pre,
+      post: msg1.post,
+      message: msg1.message,
+      string: `${msg1.pre}${msg1.message}${msg1.post}`
+    }
+  }
+}
+
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
@@ -114,7 +148,24 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500)
-  res.render("error")
+  console.error(`${err.status}`.red)
+  console.error(`${err.message}`.red)
+
+  const msg1 = { ...templates[7], message: "despair"}
+  const conj = conjunctions[3]
+  const msg2 = { ...templates[4], message: "something" }
+  const message = formatMessage(msg1, conj, msg2)
+
+  renderMessage(req, res, next, true, {
+    pre: message.msg1.pre,
+    post: message.msg1.post,
+    message: "despair",
+    conjunction: message.conj.text,
+    pre2: message.msg2.pre,
+    post2: message.msg2.post,
+    message2: "something",
+    description: message.string
+  })
 })
 
 module.exports = app
