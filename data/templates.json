@@ -1,0 +1,19 @@
+[
+  { "url": "/:message/ahead", "pre": "", "post": " ahead" },
+  { "url": "/no/:message/ahead", "pre": "no ", "post": " ahead" },
+  { "url": "/:message/required/ahead", "pre": "", "post": " required ahead" },
+  { "url": "/be/wary/of/:message", "pre": "be wary of ", "post": "" },
+  { "url": "/try/:message", "pre": "try ", "post": "" },
+  { "url": "/could/this/be/a/:message/?", "pre": "could this be a ", "post": "?" },
+  { "url": "/if/only/i/had/a/:message/...", "pre": "if only i had a ", "post": "..." },
+  { "url": "/visions/of/:message/...", "pre": "visions of ", "post": "..." },
+  { "url": "/time/for/:message", "pre": "time for ", "post": "" },
+  { "url": "/:message", "pre": "", "post": "" },
+  { "url": "/:message/!", "pre": "", "post": "!" },
+  { "url": "/:message/?", "pre": "", "post": "?" },
+  { "url": "/:message/...", "pre": "", "post": "..." },
+  { "url": "/huh/its/a/:message/...", "pre": "huh, it's a ", "post": "..." },
+  { "url": "/praise/the/:message/!", "pre": "praise the ", "post": "!" },
+  { "url": "/let/there/be/:message", "pre": "let there be ", "post": "" },
+  { "url": "/ahh/:message/...", "pre": "ahh, ", "post": "..." }
+]

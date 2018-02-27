@@ -4,6 +4,9 @@ const favicon = require("serve-favicon")
 const logger = require("morgan")
 const cookieParser = require("cookie-parser")
 const bodyParser = require("body-parser")
+
+const templates = require("./data/templates")
+const conjunctions = require("./data/conjunctions")
 const categories = require("./data/categories")
 
 const app = express()
@@ -25,72 +28,41 @@ app.get("/", (req, res, next) => {
   res.render("message", { pre: "Please use ", post:" URL!", message: "a proper" })
 })
 
-app.get("/:message/ahead", (req, res, next) => {
-  renderMessage(req, res, next, { post: " ahead", message: req.params.message })
+templates.forEach((template) => {
+  app.get(`${template.url}`, (req, res, next) => {
+    res.render("message", { pre: template.pre, post: template.post, message: req.params.message })
+  })
 })
 
-app.get("/no/:message/ahead", (req, res, next) => {
-  renderMessage(req, res, next, { pre: "No", post: " ahead", message: req.params.message })
-})
+templates.forEach((template1) => {
+  conjunctions.forEach((conjunction) => {
+    templates.forEach((template2) => {
+      let url1 = template1.url
+      let url2 = template2.url
 
-app.get("/:message/required/ahead", (req, res, next) => {
-  renderMessage(req, res, next, { post: " required ahead", message: req.params.message })
-})
+      url2 = url2.replace("message", "message2")
+      app.get(`${url1}${conjunction.url}${url2}`, (req, res, next) => {
+        let message1 = req.params.message
+        let template1Pre = template1.pre
 
-app.get("/be/wary/of/:message", (req, res, next) => {
-  renderMessage(req, res, next, { pre: "Be wary of ", message: req.params.message })
-})
+        if(template1Pre.length > 0) {
+          template1Pre = `${template1Pre[0].toUpperCase()}${template1Pre.slice(1)}`
+        } else {
+          message1 = `${message1[0].toUpperCase()}${message1.slice(1)}`
+        }
 
-app.get("/try/:message", (req, res, next) => {
-  renderMessage(req, res, next, { pre: "Try ", message: req.params.message })
-})
-
-app.get("/could/this/be/a/:message/?", (req, res, next) => {
-  renderMessage(req, res, next, { pre: "Could this be a ", post: "?", message: req.params.message })
-})
-
-app.get("/if/only/i/had/a/:message/...", (req, res, next) => {
-  renderMessage(req, res, next, { pre: "If only I had a ", post: "...", message: req.params.message })
-})
-
-app.get("/visions/of/:message/...", (req, res, next) => {
-  renderMessage(req, res, next, { pre: "Visions of", message: req.params.message })
-})
-
-app.get("/time/for/:message", (req, res, next) => {
-  renderMessage(req, res, next, { pre: "Time for ", message: req.params.message })
-})
-
-app.get("/:message", (req, res, next) => {
-  renderMessage(req, res, next, { template: "", message: req.params.message })
-})
-
-app.get("/:message/!", (req, res, next) => {
-  renderMessage(req, res, next, { post: "!", message: req.params.message })
-})
-
-app.get("/:message/?", (req, res, next) => {
-  renderMessage(req, res, next, { post: "?", message: req.params.message })
-})
-
-app.get("/:message/...", (req, res, next) => {
-  renderMessage(req, res, next, { post: "...", message: req.params.message })
-})
-
-app.get("/huh/its/a/:message/...", (req, res, next) => {
-  renderMessage(req, res, next, { pre: "Huh, it's a ", message: req.params.message })
-})
-
-app.get("/praise/the/:message/!", (req, res, next) => {
-  renderMessage(req, res, next, { pre: "Praise the ", post:"!", message: req.params.message })
-})
-
-app.get("/let/there/be/:message", (req, res, next) => {
-  renderMessage(req, res, next, { pre: "Let there be ", message: req.params.message })
-})
-
-app.get("/ahh/:message/...", (req, res, next) => {
-  renderMessage(req, res, next, { pre: "Ahh,", post: "...", message: req.params.message })
+        res.render("messagelong", {
+          pre: template1Pre,
+          post: template1.post,
+          message: message1,
+          conjunction: conjunction.text,
+          pre2: template2.pre,
+          post2: template2.post,
+          message2: req.params.message2
+        })
+      })
+    })
+  })
 })
 
 // deal with messaging
@@ -104,7 +76,7 @@ function renderMessage(req, res, next, data) {
   if(validEntry) {
     res.render("message", data)
   } else {
-    res.render("message", {pre: "Error: ", post: "!", message: "unsupported word"})
+    res.render("message", { pre: "Error: ", post: "!", message: "unsupported word" })
   }
 }
 
