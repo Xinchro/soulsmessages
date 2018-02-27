@@ -15,5 +15,8 @@
     "serve-favicon": "~2.4.5"
   },
   "author": "Xinchro",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "colors": "^1.1.2"
+  }
 }
