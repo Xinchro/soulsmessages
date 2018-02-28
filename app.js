@@ -29,6 +29,7 @@ app.get("/", (req, res, next) => {
   res.render("message", { pre: "Please use ", post:" URL!", message: "a proper" })
 })
 
+// single template route generation
 templates.forEach((template) => {
   app.get(`${template.url}`, (req, res, next) => {
     const message = formatMessage(
@@ -44,13 +45,16 @@ templates.forEach((template) => {
   })
 })
 
+// double template route generation
 templates.forEach((template1) => {
   conjunctions.forEach((conjunction) => {
     templates.forEach((template2) => {
       let url1 = template1.url
       let url2 = template2.url
 
+      // give second url variable a different variable
       url2 = url2.replace("message", "message2")
+
       app.get(`${url1}${conjunction.url}${url2}`, (req, res, next) => {
         const message = formatMessage(
           { pre: template1.pre, post: template1.post, message: req.params.message },
@@ -76,17 +80,22 @@ templates.forEach((template1) => {
 // deal with messaging
 function renderMessage(req, res, next, long, data) {
   let validEntry = false
+
+  // check if subject is valid
   for(let prop in subjects) {
     if(subjects[prop].includes(data.message.toLowerCase())) {
       validEntry = true
     }
   }
 
+  // check message length (single/double)
   let messageType = long ? "messagelong" : "message"
 
   if(validEntry) {
+    // render valid message
     res.render(messageType, data)
   } else {
+    // render error because of invalid subject
     res.render(messageType, {
       pre: "Error ",
       post: " phrase!",
@@ -107,12 +116,16 @@ function fourohfour(req, res, next) {
 
 // format message with capital first letter
 function formatMessage(msg1, conj, msg2) {
+  // capitalize first letter
+  // check if we have a pre phrase or not
   if(msg1.pre.length > 0) {
     msg1.pre = `${msg1.pre[0].toUpperCase()}${msg1.pre.slice(1)}`
   } else {
     msg1.message = `${msg1.message[0].toUpperCase()}${msg1.message.slice(1)}`
   }
 
+  // check if there's a second template (single/double message)
+  // return object with all changes, as well as a string of the whole message
   if(msg2) {
     return {
       msg1: {
@@ -151,11 +164,13 @@ app.use(function(err, req, res, next) {
   console.error(`${err.status}`.red)
   console.error(`${err.message}`.red)
 
+  // error template, subject and conjunction selection and formatting
   const msg1 = { ...templates[7], message: "despair"}
   const conj = conjunctions[3]
   const msg2 = { ...templates[4], message: "something" }
   const message = formatMessage(msg1, conj, msg2)
 
+  // dark souls like error message
   renderMessage(req, res, next, true, {
     pre: message.msg1.pre,
     post: message.msg1.post,
