@@ -8,7 +8,7 @@ const colors = require('colors');
 
 const templates = require("./data/templates")
 const conjunctions = require("./data/conjunctions")
-const categories = require("./data/categories")
+const subjects = require("./data/subjects")
 
 const app = express()
 
@@ -76,8 +76,8 @@ templates.forEach((template1) => {
 // deal with messaging
 function renderMessage(req, res, next, long, data) {
   let validEntry = false
-  for(let prop in categories) {
-    if(categories[prop].includes(data.message.toLowerCase())) {
+  for(let prop in subjects) {
+    if(subjects[prop].includes(data.message.toLowerCase())) {
       validEntry = true
     }
   }
