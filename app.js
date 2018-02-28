@@ -4,7 +4,8 @@ const favicon = require("serve-favicon")
 const logger = require("morgan")
 const cookieParser = require("cookie-parser")
 const bodyParser = require("body-parser")
-const colors = require('colors');
+const colors = require('colors')
+const fs = require('fs')
 
 const templates = require("./data/templates")
 const conjunctions = require("./data/conjunctions")
@@ -29,22 +30,6 @@ app.get("/", (req, res, next) => {
   res.render("message", { pre: "Please use ", post:" URL!", message: "a proper" })
 })
 
-// single template route generation
-templates.forEach((template) => {
-  app.get(`${template.url}`, (req, res, next) => {
-    const message = formatMessage(
-          { pre: template.pre, post: template.post, message: req.params.message }
-        )
-
-    renderMessage(req, res, next, false, { 
-      pre: message.pre,
-      post: message.post,
-      message: message.message,
-      description: message.string
-    })
-  })
-})
-
 // double template route generation
 templates.forEach((template1) => {
   conjunctions.forEach((conjunction) => {
@@ -53,13 +38,31 @@ templates.forEach((template1) => {
       let url2 = template2.url
 
       // give second url variable a different variable
-      url2 = url2.replace("message", "message2")
+      url2 = url2.replace("msg1", "msg6")
+      url2 = url2.replace("msg2", "msg7")
+      url2 = url2.replace("msg3", "msg8")
+      url2 = url2.replace("msg4", "msg9")
+      url2 = url2.replace("msg5", "msg10")
 
       app.get(`${url1}${conjunction.url}${url2}`, (req, res, next) => {
+
+        // multiple word subjects
+        let msg = req.params.msg1
+        msg += req.params.msg2 ? ` ${req.params.msg2}` : ""
+        msg += req.params.msg3 ? ` ${req.params.msg3}` : ""
+        msg += req.params.msg4 ? ` ${req.params.msg4}` : ""
+        msg += req.params.msg5 ? ` ${req.params.msg5}` : ""
+
+        let msg2 = req.params.msg6
+        msg2 += req.params.msg7 ? ` ${req.params.msg7}` : ""
+        msg2 += req.params.msg8 ? ` ${req.params.msg8}` : ""
+        msg2 += req.params.msg9 ? ` ${req.params.msg9}` : ""
+        msg2 += req.params.msg10 ? ` ${req.params.msg10}` : ""
+
         const message = formatMessage(
-          { pre: template1.pre, post: template1.post, message: req.params.message },
+          { pre: template1.pre, post: template1.post, message: msg },
           { text: conjunction.text },
-          { pre: template2.pre, post: template2.post, message: req.params.message2 }
+          { pre: template2.pre, post: template2.post, message: msg2 }
         )
 
         renderMessage(req, res, next, true, {
@@ -73,6 +76,30 @@ templates.forEach((template1) => {
           description: message.string
         })
       })
+    })
+  })
+})
+
+// single template route generation
+// after double template generation to give priority to double
+templates.forEach((template) => {
+  app.get(`${template.url}`, (req, res, next) => {
+    // multiple word subjects
+    let msg = req.params.msg1
+    msg += req.params.msg2 ? ` ${req.params.msg2}` : ""
+    msg += req.params.msg3 ? ` ${req.params.msg3}` : ""
+    msg += req.params.msg4 ? ` ${req.params.msg4}` : ""
+    msg += req.params.msg5 ? ` ${req.params.msg5}` : ""
+
+    const message = formatMessage(
+          { pre: template.pre, post: template.post, message: msg }
+        )
+
+    renderMessage(req, res, next, false, {
+      pre: message.pre,
+      post: message.post,
+      message: message.message,
+      description: message.string
     })
   })
 })
@@ -165,9 +192,9 @@ app.use(function(err, req, res, next) {
   console.error(`${err.message}`.red)
 
   // error template, subject and conjunction selection and formatting
-  const msg1 = { ...templates[7], message: "despair"}
-  const conj = conjunctions[3]
-  const msg2 = { ...templates[4], message: "something" }
+  const msg1 = { ...templates[1], message: "despair"}
+  const conj = conjunctions[4]
+  const msg2 = { ...templates[10], message: "something" }
   const message = formatMessage(msg1, conj, msg2)
 
   // dark souls like error message
