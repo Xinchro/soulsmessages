@@ -123,12 +123,7 @@ function renderMessage(req, res, next, long, data) {
     res.render(messageType, data)
   } else {
     // render error because of invalid subject
-    res.render(messageType, {
-      pre: "Error ",
-      post: " phrase!",
-      message: "with",
-      description: "Error with phrase!"
-    })
+    renderError(req, res, next)
   }
 }
 
@@ -191,6 +186,10 @@ app.use(function(err, req, res, next) {
   console.error(`${err.status}`.red)
   console.error(`${err.message}`.red)
 
+  renderError(req, res, next)
+})
+
+function renderError(req, res, next) {
   // error template, subject and conjunction selection and formatting
   const msg1 = { ...templates[1], message: "despair"}
   const conj = conjunctions[4]
@@ -208,6 +207,6 @@ app.use(function(err, req, res, next) {
     message2: "something",
     description: message.string
   })
-})
+}
 
 module.exports = app
