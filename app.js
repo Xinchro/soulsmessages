@@ -7,6 +7,7 @@ const bodyParser = require("body-parser")
 const colors = require('colors')
 const fs = require('fs')
 
+const image = require("./utils/image")
 const templates = require("./data/templates")
 const conjunctions = require("./data/conjunctions")
 const subjects = require("./data/subjects")
@@ -113,7 +114,7 @@ function constructLongURL(template1, conjunction, template2) {
       pre2: message.msg2.pre,
       post2: message.msg2.post,
       message2: message.msg2.message,
-      description: message.string
+      string: message.string
     })
   })
 }
@@ -135,7 +136,7 @@ function constructShortURL(template) {
       pre: message.pre,
       post: message.post,
       message: message.message,
-      description: message.string
+      string: message.string
     })
   })
 }
@@ -151,16 +152,39 @@ function renderMessage(req, res, next, long, data) {
     }
   }
 
+  if(validEntry && data.message2) {
+    validEntry = false
+
+    for(let prop in subjects) {
+      if(subjects[prop].includes(data.message2.toLowerCase())) {
+        validEntry = true
+      }
+    }
+  }
+
   // check message length (single/double)
   let messageType = long ? "messagelong" : "message"
 
   if(validEntry) {
     // render valid message
-    res.render(messageType, data)
+    // res.render(messageType, data) // TODO
+    renderImage(req, res, next, data.string)
   } else {
     // render error because of invalid subject
     renderError(req, res, next)
   }
+}
+
+function renderImage(req, res, next, text) {
+  // construct image
+  let img = image.render(text)
+  .then(img => {
+    // get image buffer and send as binary PNG
+    img.getBuffer("image/png", (err, img) => {
+      res.setHeader('content-type', 'image/png');
+      res.end(img, "binary")
+    })
+  }, (err) => console.error("Error with rendering image".red, err))
 }
 
 // catch 404 and forward to error handler
@@ -226,8 +250,6 @@ app.use(function(err, req, res, next) {
 })
 
 function renderError(req, res, next) {
-    console.log("long", req.route.path)
-
   // error template, subject and conjunction selection and formatting
   const msg1 = { ...templates.static[1], message: "despair"}
   const conj = conjunctions[4]
@@ -243,7 +265,7 @@ function renderError(req, res, next) {
     pre2: message.msg2.pre,
     post2: message.msg2.post,
     message2: message.msg2.message,
-    description: message.string
+    string: message.string
   })
 }
 
