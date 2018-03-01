@@ -5,7 +5,7 @@
   { "url": "/praise/the/:msg1/:msg2?/:msg3?/:msg4?/:msg5?/!", "pre": "praise the ", "post": "!" },
   { "url": "/no/:msg1/:msg2?/:msg3?/:msg4?/:msg5?/ahead", "pre": "no ", "post": " ahead" },
   { "url": "/ahh/:msg1/:msg2?/:msg3?/:msg4?/:msg5?/...", "pre": "ahh, ", "post": "..." },
-  { "url": "/could/this/be/a/:msg1/:msg2?/:msg3?/:msg4?/:msg5?/?", "pre": "could this be a ", "post": "?" },
+  { "url": "/could/this/be/a/:msg1/:msg2?/:msg3?/:msg4?/:msg5?/q", "pre": "could this be a ", "post": "?" },
   { "url": "/let/there/be/:msg1/:msg2?/:msg3?/:msg4?/:msg5?", "pre": "let there be ", "post": "" },
   { "url": "/be/wary/of/:msg1/:msg2?/:msg3?/:msg4?/:msg5?", "pre": "be wary of ", "post": "" },
   { "url": "/time/for/:msg1/:msg2?/:msg3?/:msg4?/:msg5?", "pre": "time for ", "post": "" },
@@ -14,6 +14,6 @@
   { "url": "/:msg1/:msg2?/:msg3?/:msg4?/:msg5?/ahead", "pre": "", "post": " ahead" },
   { "url": "/:msg1/:msg2?/:msg3?/:msg4?/:msg5?/...", "pre": "", "post": "..." },
   { "url": "/:msg1/:msg2?/:msg3?/:msg4?/:msg5?/!", "pre": "", "post": "!" },
-  { "url": "/:msg1/:msg2?/:msg3?/:msg4?/:msg5?/?", "pre": "", "post": "?" },
+  { "url": "/:msg1/:msg2?/:msg3?/:msg4?/:msg5?/q", "pre": "", "post": "?" },
   { "url": "/:msg1/:msg2?/:msg3?/:msg4?/:msg5?", "pre": "", "post": "" }
 ]
