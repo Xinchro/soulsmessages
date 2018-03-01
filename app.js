@@ -30,59 +30,95 @@ app.get("/", (req, res, next) => {
   res.render("message", { pre: "Please use ", post:" URL!", message: "a proper" })
 })
 
-// double template route generation
-templates.forEach((template1) => {
+// static - static
+templates.static.forEach((template1) => {
   conjunctions.forEach((conjunction) => {
-    templates.forEach((template2) => {
-      let url1 = template1.url
-      let url2 = template2.url
-
-      // give second url variable a different variable
-      url2 = url2.replace("msg1", "msg6")
-      url2 = url2.replace("msg2", "msg7")
-      url2 = url2.replace("msg3", "msg8")
-      url2 = url2.replace("msg4", "msg9")
-      url2 = url2.replace("msg5", "msg10")
-
-      app.get(`${url1}${conjunction.url}${url2}`, (req, res, next) => {
-
-        // multiple word subjects
-        let msg = req.params.msg1
-        msg += req.params.msg2 ? ` ${req.params.msg2}` : ""
-        msg += req.params.msg3 ? ` ${req.params.msg3}` : ""
-        msg += req.params.msg4 ? ` ${req.params.msg4}` : ""
-        msg += req.params.msg5 ? ` ${req.params.msg5}` : ""
-
-        let msg2 = req.params.msg6
-        msg2 += req.params.msg7 ? ` ${req.params.msg7}` : ""
-        msg2 += req.params.msg8 ? ` ${req.params.msg8}` : ""
-        msg2 += req.params.msg9 ? ` ${req.params.msg9}` : ""
-        msg2 += req.params.msg10 ? ` ${req.params.msg10}` : ""
-
-        const message = formatMessage(
-          { pre: template1.pre, post: template1.post, message: msg },
-          { text: conjunction.text },
-          { pre: template2.pre, post: template2.post, message: msg2 }
-        )
-
-        renderMessage(req, res, next, true, {
-          pre: message.msg1.pre,
-          post: message.msg1.post,
-          message: message.msg1.message,
-          conjunction: message.conj.text,
-          pre2: message.msg2.pre,
-          post2: message.msg2.post,
-          message2: message.msg2.message,
-          description: message.string
-        })
-      })
+    templates.static.forEach((template2) => {
+      constructLongURL(template1, conjunction, template2)
     })
   })
 })
 
-// single template route generation
-// after double template generation to give priority to double
-templates.forEach((template) => {
+// static - dynamic
+templates.static.forEach((template1) => {
+  conjunctions.forEach((conjunction) => {
+    templates.dynamic.forEach((template2) => {
+      constructLongURL(template1, conjunction, template2)
+    })
+  })
+})
+
+// static
+templates.static.forEach((template) => {
+  constructShortURL(template)
+})
+
+// dynamic - static
+templates.dynamic.forEach((template1) => {
+  conjunctions.forEach((conjunction) => {
+    templates.static.forEach((template2) => {
+      constructLongURL(template1, conjunction, template2)
+    })
+  })
+})
+
+// dynamic
+// dynamic - dynamic
+// different than above to prevent double phrase dynamics overriding conjunctions and second phrases
+templates.dynamic.forEach((template1) => {
+  constructShortURL(template1)
+  conjunctions.forEach((conjunction) => {
+    templates.dynamic.forEach((template2) => {
+      constructLongURL(template1, conjunction, template2)
+    })
+  })
+})
+
+function constructLongURL(template1, conjunction, template2) {
+  let url1 = template1.url
+  let url2 = template2.url
+
+  // give second url variable a different variable
+  url2 = url2.replace("msg1", "msg6")
+  url2 = url2.replace("msg2", "msg7")
+  url2 = url2.replace("msg3", "msg8")
+  url2 = url2.replace("msg4", "msg9")
+  url2 = url2.replace("msg5", "msg10")
+
+  app.get(`${url1}${conjunction.url}${url2}`, (req, res, next) => {
+    // multiple word subjects
+    let msg = req.params.msg1
+    msg += req.params.msg2 ? ` ${req.params.msg2}` : ""
+    msg += req.params.msg3 ? ` ${req.params.msg3}` : ""
+    msg += req.params.msg4 ? ` ${req.params.msg4}` : ""
+    msg += req.params.msg5 ? ` ${req.params.msg5}` : ""
+
+    let msg2 = req.params.msg6
+    msg2 += req.params.msg7 ? ` ${req.params.msg7}` : ""
+    msg2 += req.params.msg8 ? ` ${req.params.msg8}` : ""
+    msg2 += req.params.msg9 ? ` ${req.params.msg9}` : ""
+    msg2 += req.params.msg10 ? ` ${req.params.msg10}` : ""
+
+    const message = formatMessage(
+      { pre: template1.pre, post: template1.post, message: msg },
+      { text: conjunction.text },
+      { pre: template2.pre, post: template2.post, message: msg2 }
+    )
+
+    renderMessage(req, res, next, true, {
+      pre: message.msg1.pre,
+      post: message.msg1.post,
+      message: message.msg1.message,
+      conjunction: message.conj.text,
+      pre2: message.msg2.pre,
+      post2: message.msg2.post,
+      message2: message.msg2.message,
+      description: message.string
+    })
+  })
+}
+
+function constructShortURL(template) {
   app.get(`${template.url}`, (req, res, next) => {
     // multiple word subjects
     let msg = req.params.msg1
@@ -102,7 +138,7 @@ templates.forEach((template) => {
       description: message.string
     })
   })
-})
+}
 
 // deal with messaging
 function renderMessage(req, res, next, long, data) {
@@ -190,10 +226,12 @@ app.use(function(err, req, res, next) {
 })
 
 function renderError(req, res, next) {
+    console.log("long", req.route.path)
+
   // error template, subject and conjunction selection and formatting
-  const msg1 = { ...templates[1], message: "despair"}
+  const msg1 = { ...templates.static[1], message: "despair"}
   const conj = conjunctions[4]
-  const msg2 = { ...templates[10], message: "backstepping" }
+  const msg2 = { ...templates.static[10], message: "backstepping" }
   const message = formatMessage(msg1, conj, msg2)
 
   // dark souls like error message
