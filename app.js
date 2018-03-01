@@ -193,18 +193,18 @@ function renderError(req, res, next) {
   // error template, subject and conjunction selection and formatting
   const msg1 = { ...templates[1], message: "despair"}
   const conj = conjunctions[4]
-  const msg2 = { ...templates[10], message: "something" }
+  const msg2 = { ...templates[10], message: "backstepping" }
   const message = formatMessage(msg1, conj, msg2)
 
   // dark souls like error message
   renderMessage(req, res, next, true, {
     pre: message.msg1.pre,
     post: message.msg1.post,
-    message: "despair",
+    message: message.msg1.message,
     conjunction: message.conj.text,
     pre2: message.msg2.pre,
     post2: message.msg2.post,
-    message2: "something",
+    message2: message.msg2.message,
     description: message.string
   })
 }
