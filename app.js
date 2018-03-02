@@ -208,12 +208,13 @@ function formatMessage(msg1, conj, msg2) {
 
   // check if there's a second template (single/double message)
   // return object with all changes, as well as a string of the whole message
+  // also enforce lower case letters (not including first letter)
   if(msg2) {
     return {
       msg1: {
         pre: msg1.pre,
         post: msg1.post,
-        message: msg1.message
+        message: msg1.message.toLowerCase()
       },
       conj: {
         text: conj.text
@@ -221,16 +222,16 @@ function formatMessage(msg1, conj, msg2) {
       msg2: {
         pre: msg2.pre,
         post: msg2.post,
-        message: msg2.message
+        message: msg2.message.toLowerCase()
       },
-      string: `${msg1.pre}${msg1.message}${msg1.post}${conj.text}${msg2.pre}${msg2.message}${msg2.post}`
+      string: `${msg1.pre}${msg1.message.toLowerCase()}${msg1.post}${conj.text}${msg2.pre}${msg2.message.toLowerCase()}${msg2.post}`
     }
   } else {
     return {
       pre: msg1.pre,
       post: msg1.post,
-      message: msg1.message,
-      string: `${msg1.pre}${msg1.message}${msg1.post}`
+      message: msg1.message.toLowerCase(),
+      string: `${msg1.pre}${msg1.message.toLowerCase()}${msg1.post}`
     }
   }
 }
